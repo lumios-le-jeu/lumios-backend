@@ -1,4 +1,5 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+import os
+from fastapi import FastAPI, WebSocket
 from typing import List
 
 app = FastAPI()
@@ -14,19 +15,16 @@ def read_root():
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     connected_clients.append(websocket)
-    print(f"Client connecté : {websocket.client}")
     try:
         while True:
-            # Réception des données depuis un client
             data = await websocket.receive_text()
-            print(f"Message reçu : {data}")
-            # Envoi des données à tous les clients connectés
             for client in connected_clients:
                 await client.send_text(data)
-    except WebSocketDisconnect:
-        print(f"Client déconnecté : {websocket.client}")
+    except:
         connected_clients.remove(websocket)
-    except Exception as e:
-        print(f"Erreur inattendue : {e}")
-    finally:
-        await websocket.close()
+
+# Ajout de cette ligne pour utiliser le port défini par Render
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))  # Utilise le port défini par Render, par défaut 8000
+    uvicorn.run(app, host="0.0.0.0", port=port)
