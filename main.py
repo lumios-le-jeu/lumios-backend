@@ -4,6 +4,12 @@ from typing import List
 app = FastAPI()
 connected_clients: List[WebSocket] = []
 
+# Route HTTP pour vérifier que le backend est actif
+@app.get("/")
+def read_root():
+    return {"message": "Backend is running and WebSocket is ready!"}
+
+# Endpoint WebSocket
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
